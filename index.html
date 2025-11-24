@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Interactive Art - Main</title>
+        <style>
+            body {
+                margin: 0;
+                height: 100vh;
+                background: #f5f5f5;
+                display: flex;
+                justify-content: center;
+                align-items: flex-end;
+                font-family: Arial, sans-serif;
+                user-select: none;
+            }
+
+            .bookshelf-container {
+                width: 40%; /* 화면의 40% */
+                height: 160px;
+                position: relative;
+                margin-bottom: 20px;
+                overflow-x: hidden; /* 좌우만 숨김 */
+                overflow-y: visible; /* 상하는 보이도록 */
+                padding-top: 40px; /* hover 시 올라갈 공간 확보 */
+                box-sizing: border-box;
+            }
+
+            .bookshelf {
+                display: flex;
+                gap: 10px;
+                position: relative;
+                transform: translateX(0);
+            }
+
+            .book {
+                width: 50px;
+                height: 120px;
+                border-radius: 5px;
+                flex-shrink: 0;
+                cursor: grab;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+                transition: transform 0.3s ease;
+                position: relative;
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+            }
+
+            /* 호버 시 책이 올라가고 커지도록 */
+            .book:hover {
+                transform: translateY(-30px) scale(1.1);
+                z-index: 10;
+            }
+
+            /* 책 제목 */
+            .book-title {
+                color: white;
+                font-size: 12px;
+                text-align: center;
+                padding: 2px 4px;
+                position: absolute;
+                top: 5px;
+                width: 100%;
+                pointer-events: none; /* 제목 클릭 방해하지 않음 */
+            }
+        </style>
+    </head>
+    <body>
+        <div class="bookshelf-container">
+            <div class="bookshelf" id="bookshelf">
+                <!-- 책 20권 + 제목 -->
+                <div
+                    class="book"
+                    style="background: #ffd1dc"
+                    onclick="window.location.href='water.html'"
+                >
+                    <div class="book-title">Wave</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #ffb3ba"
+                    onclick="window.location.href='firework.html'"
+                >
+                    <div class="book-title">Firework</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #ffdfba"
+                    onclick="window.location.href='page3.html'"
+                >
+                    <div class="book-title">책 3</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #ffffba"
+                    onclick="window.location.href='page4.html'"
+                >
+                    <div class="book-title">책 4</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #baffc9"
+                    onclick="window.location.href='grass.html'"
+                >
+                    <div class="book-title">Grass</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #bae1ff"
+                    onclick="window.location.href='page6.html'"
+                >
+                    <div class="book-title">책 6</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #d7baff"
+                    onclick="window.location.href='page7.html'"
+                >
+                    <div class="book-title">책 7</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #ffc0cb"
+                    onclick="window.location.href='page8.html'"
+                >
+                    <div class="book-title">책 8</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #e0bbe4"
+                    onclick="window.location.href='page9.html'"
+                >
+                    <div class="book-title">책 9</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #957dad"
+                    onclick="window.location.href='page10.html'"
+                >
+                    <div class="book-title">책 10</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #fec8d8"
+                    onclick="window.location.href='page11.html'"
+                >
+                    <div class="book-title">책 11</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #ffabab"
+                    onclick="window.location.href='page12.html'"
+                >
+                    <div class="book-title">책 12</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #ffdac1"
+                    onclick="window.location.href='page13.html'"
+                >
+                    <div class="book-title">책 13</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #e2f0cb"
+                    onclick="window.location.href='page14.html'"
+                >
+                    <div class="book-title">책 14</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #b5ead7"
+                    onclick="window.location.href='page15.html'"
+                >
+                    <div class="book-title">책 15</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #c7ceea"
+                    onclick="window.location.href='page16.html'"
+                >
+                    <div class="book-title">책 16</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #ffb7b2"
+                    onclick="window.location.href='page17.html'"
+                >
+                    <div class="book-title">책 17</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #ffccb6"
+                    onclick="window.location.href='page18.html'"
+                >
+                    <div class="book-title">책 18</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #ffe4c4"
+                    onclick="window.location.href='page19.html'"
+                >
+                    <div class="book-title">책 19</div>
+                </div>
+                <div
+                    class="book"
+                    style="background: #d6eaf8"
+                    onclick="window.location.href='page20.html'"
+                >
+                    <div class="book-title">책 20</div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const shelf = document.getElementById("bookshelf");
+            const books = Array.from(shelf.children);
+            const bookWidth = books[0].offsetWidth + 10;
+            const totalWidth = bookWidth * books.length;
+
+            // 책 복제해서 무한슬라이드
+            books.forEach((book) => {
+                const clone = book.cloneNode(true);
+                shelf.appendChild(clone);
+            });
+
+            let position = 0;
+            let isDragging = false;
+            let startX = 0;
+            let startPos = 0;
+
+            shelf.addEventListener("mousedown", (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                startPos = position;
+                shelf.style.cursor = "grabbing";
+            });
+            window.addEventListener("mouseup", () => {
+                isDragging = false;
+                shelf.style.cursor = "grab";
+            });
+            window.addEventListener("mousemove", (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                position = startPos + dx;
+                updateShelf();
+            });
+            shelf.addEventListener("touchstart", (e) => {
+                isDragging = true;
+                startX = e.touches[0].clientX;
+                startPos = position;
+            });
+            window.addEventListener("touchend", () => {
+                isDragging = false;
+            });
+            window.addEventListener("touchmove", (e) => {
+                if (!isDragging) return;
+                const dx = e.touches[0].clientX - startX;
+                position = startPos + dx;
+                updateShelf();
+            });
+
+            let velocity = 0;
+            function animate() {
+                if (!isDragging) {
+                    velocity *= 0.95;
+                    position += velocity;
+                }
+
+                if (position <= -totalWidth) position += totalWidth;
+                if (position >= 0) position -= totalWidth;
+
+                shelf.style.transform = `translateX(${position}px)`;
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            shelf.addEventListener("mouseup", (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                velocity = dx * 0.2;
+            });
+            shelf.addEventListener("touchend", (e) => {
+                if (!isDragging) return;
+                const dx = e.changedTouches[0].clientX - startX;
+                velocity = dx * 0.2;
+            });
+
+            function updateShelf() {
+                shelf.style.transform = `translateX(${position}px)`;
+            }
+        </script>
+    </body>
+</html>

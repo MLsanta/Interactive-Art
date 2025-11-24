@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Interactive Art - Fast Grass Growth</title>
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+                background-color: #a3d9a5;
+                font-family: Arial, sans-serif;
+            }
+            canvas {
+                display: block;
+            }
+            #homeButton {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                background-color: #ffffffcc;
+                border: 2px solid #2e8b57;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                z-index: 10;
+                transition: 0.2s;
+            }
+            #homeButton:hover {
+                background-color: #2e8b57;
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <button id="homeButton">HOME</button>
+        <canvas id="canvas"></canvas>
+
+        <script>
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            document
+                .getElementById("homeButton")
+                .addEventListener("click", () => {
+                    window.location.href = "/";
+                });
+
+            const GRASS_COUNT = 80;
+            const grasses = [];
+            for (let i = 0; i < GRASS_COUNT; i++) {
+                grasses.push({
+                    x: Math.random() * canvas.width,
+                    baseY: canvas.height,
+                    height: 10 + Math.random() * 30,
+                    maxHeight: 300 + Math.random() * 200,
+                    baseSpeed: 0.1,
+                    growthDelay: Math.random() * 50,
+                    frameCounter: 0,
+                });
+            }
+
+            const SOUND_THRESHOLD = 1; // 소리가 일정 수준 이상일 때만 성장
+
+            navigator.mediaDevices
+                .getUserMedia({ audio: true, video: false })
+                .then((stream) => {
+                    const audioContext = new (window.AudioContext ||
+                        window.webkitAudioContext)();
+                    const source = audioContext.createMediaStreamSource(stream);
+                    const analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 256;
+                    source.connect(analyser);
+
+                    const dataArray = new Uint8Array(
+                        analyser.frequencyBinCount
+                    );
+
+                    function drawGrass(grass, volume) {
+                        grass.frameCounter++;
+                        if (
+                            volume > SOUND_THRESHOLD &&
+                            grass.frameCounter > grass.growthDelay
+                        ) {
+                            // 성장 속도 빠르게: 0.5로 증가, 최소 0.5씩 성장
+                            const growth = Math.max(
+                                (volume - SOUND_THRESHOLD) * 2,
+                                0.5
+                            );
+                            grass.height = Math.min(
+                                grass.height + growth,
+                                grass.maxHeight
+                            );
+                            grass.frameCounter = 0;
+                        }
+
+                        const sway =
+                            Math.sin(Date.now() * 0.003 + grass.x) *
+                            (volume * 0.05);
+
+                        ctx.beginPath();
+                        ctx.fillStyle = "#2e8b57";
+                        ctx.moveTo(grass.x - 5, grass.baseY);
+                        ctx.lineTo(grass.x + sway, grass.baseY - grass.height);
+                        ctx.lineTo(grass.x + 5, grass.baseY);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+
+                    function draw() {
+                        analyser.getByteFrequencyData(dataArray);
+
+                        // RMS 기반 볼륨 계산
+                        let sumSquares = 0;
+                        for (let i = 0; i < dataArray.length; i++) {
+                            const val = dataArray[i] / 255;
+                            sumSquares += val * val;
+                        }
+                        const rms = Math.sqrt(sumSquares / dataArray.length);
+                        const volume = rms * 100;
+
+                        console.log("마이크 볼륨:", volume.toFixed(2));
+
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        grasses.forEach((grass) => drawGrass(grass, volume));
+
+                        requestAnimationFrame(draw);
+                    }
+
+                    draw();
+                })
+                .catch((err) => {
+                    console.error("마이크 접근 오류:", err);
+                    alert("마이크 접근이 필요합니다.");
+                });
+
+            window.addEventListener("resize", () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        </script>
+    </body>
+</html>
