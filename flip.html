@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <title>무한 슬라이드 파스텔 카드</title>
+        <style>
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: #222;
+                perspective: 1200px;
+            }
+
+            .cards-container {
+                display: grid;
+                width: 100%;
+                height: 100%;
+                gap: 10px;
+                justify-content: center;
+                align-content: start;
+            }
+
+            .card-row {
+                display: flex;
+                gap: 10px;
+            }
+
+            .card {
+                width: 150px;
+                height: 200px;
+                flex-shrink: 0;
+                transform-style: preserve-3d;
+                position: relative;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .card-face {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                backface-visibility: hidden;
+                border-radius: 8px;
+            }
+
+            .front {
+            }
+            .back {
+                transform: rotateY(180deg);
+            }
+
+            .highlight {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                pointer-events: none;
+                border-radius: 8px;
+                background: radial-gradient(
+                    circle at 50% 50%,
+                    rgba(255, 255, 255, 0.3),
+                    transparent 70%
+                );
+                mix-blend-mode: overlay;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="cards-container" id="cardsContainer"></div>
+
+        <script>
+            const cardsContainer = document.getElementById("cardsContainer");
+            let rows = [];
+
+            function pastelColor() {
+                const r = Math.floor(Math.random() * 127) + 128;
+                const g = Math.floor(Math.random() * 127) + 128;
+                const b = Math.floor(Math.random() * 127) + 128;
+                return `rgb(${r},${g},${b})`;
+            }
+
+            function createCards() {
+                cardsContainer.innerHTML = "";
+                rows = [];
+
+                const cardWidth = 150;
+                const gap = 10;
+                const cols =
+                    Math.ceil(window.innerWidth / (cardWidth + gap)) + 2;
+                const rowCount = 5;
+
+                for (let r = 0; r < rowCount; r++) {
+                    const rowDiv = document.createElement("div");
+                    rowDiv.classList.add("card-row");
+
+                    const cards = [];
+                    for (let c = 0; c < cols; c++) {
+                        const card = document.createElement("div");
+                        card.classList.add("card");
+                        const color = pastelColor();
+
+                        const front = document.createElement("div");
+                        front.classList.add("card-face", "front");
+                        front.style.backgroundColor = color;
+
+                        const back = document.createElement("div");
+                        back.classList.add("card-face", "back");
+                        back.style.backgroundColor = color;
+
+                        const highlight = document.createElement("div");
+                        highlight.classList.add("highlight");
+
+                        card.appendChild(front);
+                        card.appendChild(back);
+                        card.appendChild(highlight);
+
+                        rowDiv.appendChild(card);
+                        cards.push(card);
+                    }
+
+                    const cloneTimes =
+                        Math.ceil(
+                            window.innerWidth / ((cardWidth + gap) * cols)
+                        ) + 1;
+                    for (let i = 0; i < cloneTimes; i++) {
+                        cards.forEach((c) =>
+                            rowDiv.appendChild(c.cloneNode(true))
+                        );
+                    }
+
+                    cardsContainer.appendChild(rowDiv);
+                    const rowWidth = rowDiv.scrollWidth / (1 + cloneTimes);
+                    const direction = r % 2 === 0 ? 1 : -1;
+                    const initialOffset =
+                        direction === 1 ? 0 : rowWidth - window.innerWidth;
+
+                    rows.push({
+                        el: rowDiv,
+                        direction,
+                        offset: initialOffset,
+                        width: rowWidth,
+                    });
+                }
+            }
+
+            createCards();
+            window.addEventListener("resize", createCards);
+
+            document.addEventListener("mousemove", (e) => {
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+
+                document.querySelectorAll(".card").forEach((card) => {
+                    const rect = card.getBoundingClientRect();
+                    const cardX = rect.left + rect.width / 2;
+                    const cardY = rect.top + rect.height / 2;
+
+                    const dx = mouseX - cardX;
+                    const dy = mouseY - cardY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    const factor = Math.max(0, 1 - distance / 400);
+                    const rotateY = (dx / 5) * factor;
+                    const rotateX = (-dy / 5) * factor;
+
+                    card.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+
+                    const highlight = card.querySelector(".highlight");
+                    const offsetX = (
+                        ((mouseX - rect.left) / rect.width) *
+                        100
+                    ).toFixed(1);
+                    const offsetY = (
+                        ((mouseY - rect.top) / rect.height) *
+                        100
+                    ).toFixed(1);
+                    highlight.style.background = `radial-gradient(circle at ${offsetX}% ${offsetY}%, rgba(255,255,255,0.3), transparent 70%)`;
+                });
+            });
+
+            function animateScroll() {
+                rows.forEach((row) => {
+                    row.offset += 0.5 * row.direction;
+                    if (row.direction === 1 && row.offset >= row.width)
+                        row.offset -= row.width;
+                    if (row.direction === -1 && row.offset <= 0)
+                        row.offset += row.width;
+                    row.el.style.transform = `translateX(${-row.offset}px)`;
+                });
+                requestAnimationFrame(animateScroll);
+            }
+            animateScroll();
+        </script>
+    </body>
+</html>

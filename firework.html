@@ -16,30 +16,9 @@
                 width: 100vw;
                 height: 100vh;
             }
-
-            /* HOME 버튼 스타일 */
-            #homeButton {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 10px 20px;
-                background-color: #ffffffcc; /* 반투명 흰색 */
-                border: 2px solid #2e8b57;
-                border-radius: 8px;
-                cursor: pointer;
-                font-weight: bold;
-                z-index: 10; /* 캔버스 위에 표시 */
-                transition: background-color 0.2s;
-            }
-
-            #homeButton:hover {
-                background-color: #2e8b57;
-                color: white;
-            }
         </style>
     </head>
     <body>
-        <button id="homeButton">HOME</button>
         <canvas id="fireworkCanvas"></canvas>
 
         <script>
@@ -53,13 +32,6 @@
             }
             resizeCanvas();
             window.addEventListener("resize", resizeCanvas);
-
-            // HOME 버튼 클릭 이벤트
-            document
-                .getElementById("homeButton")
-                .addEventListener("click", () => {
-                    window.location.href = "/"; // 원하는 링크로 변경 가능
-                });
 
             class ParticleF {
                 constructor(
@@ -153,6 +125,7 @@
             function animateF() {
                 ctxF.fillStyle = "rgba(17,17,17,0.2)";
                 ctxF.fillRect(0, 0, canvasF.width, canvasF.height);
+
                 for (let i = 0; i < rocketsF.length; i++) {
                     rocketsF[i].update();
                     rocketsF[i].draw();
@@ -161,6 +134,7 @@
                         i--;
                     }
                 }
+
                 for (let i = 0; i < particlesF.length; i++) {
                     particlesF[i].update();
                     particlesF[i].draw();
@@ -169,6 +143,7 @@
                         i--;
                     }
                 }
+
                 requestAnimationFrame(animateF);
             }
             animateF();

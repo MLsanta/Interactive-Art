@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Interactive Art - Snake</title>
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background-color: #222;
+                cursor: none;
+            }
+
+            .snake-segment {
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                background: #4caf50;
+                pointer-events: none;
+                transform: translate(-50%, -50%) rotate(0deg);
+                transform-origin: center center;
+                transition: transform 0.05s linear;
+            }
+
+            .snake-head {
+                border-radius: 0 50% 50% 0;
+            }
+
+            .snake-tail {
+                border-radius: 50% 0 0 50%;
+            }
+
+            .food {
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: red;
+                pointer-events: none;
+            }
+        </style>
+    </head>
+    <body>
+        <script>
+            const segmentSpacing = 20;
+            let snake = [];
+            let segmentCount = 15;
+            let mouseX = window.innerWidth / 2;
+            let mouseY = window.innerHeight / 2;
+            let isMoving = false;
+            let foods = [];
+
+            // 뱀 초기화
+            function createSnake() {
+                snake.forEach((s) => s.el.remove());
+                snake = [];
+                for (let i = 0; i < segmentCount; i++) {
+                    const seg = document.createElement("div");
+                    seg.classList.add("snake-segment");
+
+                    if (i === 0) seg.classList.add("snake-head"); // 머리
+                    else if (i === segmentCount - 1)
+                        seg.classList.add("snake-tail"); // 꼬리
+
+                    document.body.appendChild(seg);
+                    snake.push({ el: seg, x: mouseX, y: mouseY, angle: 0 });
+                }
+            }
+
+            // 음식 생성
+            function createFood() {
+                const food = document.createElement("div");
+                food.classList.add("food");
+                food.x = Math.random() * window.innerWidth;
+                food.y = Math.random() * window.innerHeight;
+                food.el = food;
+                food.el.style.left = food.x + "px";
+                food.el.style.top = food.y + "px";
+                document.body.appendChild(food.el);
+                foods.push(food);
+            }
+
+            // 마우스 움직임 감지
+            document.addEventListener("mousemove", (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                isMoving = true;
+            });
+
+            // 뱀 움직임
+            function animate() {
+                if (isMoving) {
+                    let head = snake[0];
+                    let dx = mouseX - head.x;
+                    let dy = mouseY - head.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist > 1) {
+                        head.x += dx * 0.2;
+                        head.y += dy * 0.2;
+                        head.angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+                    }
+
+                    for (let i = 1; i < snake.length; i++) {
+                        let prev = snake[i - 1];
+                        let seg = snake[i];
+                        let dx = prev.x - seg.x;
+                        let dy = prev.y - seg.y;
+                        let dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist > segmentSpacing) {
+                            const angle = Math.atan2(dy, dx);
+                            seg.x = prev.x - Math.cos(angle) * segmentSpacing;
+                            seg.y = prev.y - Math.sin(angle) * segmentSpacing;
+                            seg.angle = (angle * 180) / Math.PI;
+                        }
+                    }
+
+                    snake.forEach((seg) => {
+                        seg.el.style.left = seg.x + "px";
+                        seg.el.style.top = seg.y + "px";
+                        seg.el.style.transform = `translate(-50%, -50%) rotate(${seg.angle}deg)`;
+                    });
+
+                    foods.forEach((food, idx) => {
+                        let dx = head.x - food.x;
+                        let dy = head.y - food.y;
+                        let dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 20) {
+                            food.el.remove();
+                            foods.splice(idx, 1);
+                            addSegment();
+                            createFood();
+                        }
+                    });
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            // 마디 추가
+            function addSegment() {
+                const last = snake[snake.length - 1];
+                const seg = document.createElement("div");
+                seg.classList.add("snake-segment", "snake-tail");
+                seg.style.left = last.x + "px";
+                seg.style.top = last.y + "px";
+                seg.angle = last.angle;
+                document.body.appendChild(seg);
+                if (snake.length > 1)
+                    snake[snake.length - 1].el.classList.remove("snake-tail");
+                snake.push({
+                    el: seg,
+                    x: last.x,
+                    y: last.y,
+                    angle: last.angle,
+                });
+            }
+
+            let lastX = mouseX,
+                lastY = mouseY;
+            setInterval(() => {
+                isMoving = !(lastX === mouseX && lastY === mouseY);
+                lastX = mouseX;
+                lastY = mouseY;
+            }, 50);
+
+            createSnake();
+            for (let i = 0; i < 5; i++) createFood();
+            animate();
+        </script>
+    </body>
+</html>

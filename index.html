@@ -3,293 +3,607 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Interactive Art - Main</title>
+        <title>Interactive Art - Collage</title>
         <style>
             body {
                 margin: 0;
                 height: 100vh;
-                background: #f5f5f5;
-                display: flex;
-                justify-content: center;
-                align-items: flex-end;
-                font-family: Arial, sans-serif;
+                background: #fff;
+                overflow: hidden;
                 user-select: none;
-            }
-
-            .bookshelf-container {
-                width: 40%; /* 화면의 40% */
-                height: 160px;
                 position: relative;
-                margin-bottom: 20px;
-                overflow-x: hidden; /* 좌우만 숨김 */
-                overflow-y: visible; /* 상하는 보이도록 */
-                padding-top: 40px; /* hover 시 올라갈 공간 확보 */
-                box-sizing: border-box;
+                font-family: Arial, sans-serif;
             }
-
-            .bookshelf {
-                display: flex;
-                gap: 10px;
-                position: relative;
-                transform: translateX(0);
+            .lake-container {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                z-index: 5;
             }
-
-            .book {
-                width: 50px;
-                height: 120px;
-                border-radius: 5px;
-                flex-shrink: 0;
-                cursor: grab;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-                transition: transform 0.3s ease;
-                position: relative;
-                display: flex;
-                justify-content: center;
-                align-items: flex-start;
+            .water-level {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                height: 0;
+                background: #87ceeb;
+                transition: height 0.3s ease;
             }
-
-            /* 호버 시 책이 올라가고 커지도록 */
-            .book:hover {
-                transform: translateY(-30px) scale(1.1);
+            .valve-container {
+                position: absolute;
+                bottom: 10%;
+                left: 50%;
+                transform: translateX(-50%);
                 z-index: 10;
             }
-
-            /* 책 제목 */
-            .book-title {
-                color: white;
-                font-size: 12px;
-                text-align: center;
-                padding: 2px 4px;
+            .valve {
+                width: 350px;
+                height: 350px;
+                background: url(img/wheel2-Photoroom.png) no-repeat
+                    center/contain;
+                border-radius: 50%;
+                cursor: grab;
+                position: relative;
+                transition: box-shadow 0.2s;
+            }
+            .valve:active {
+                cursor: grabbing;
+            }
+            .decorative-objects {
                 position: absolute;
-                top: 5px;
+                top: 20px;
+                left: 20px;
+                z-index: 50;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+            #wateringCan {
+                width: 300px;
+                cursor: pointer;
+                transform-origin: 90% 80%;
+                transition: transform 0.3s;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 51;
+                opacity: 0.8;
+            }
+            #scoop {
+                width: 150px;
+                cursor: default;
+                position: absolute;
+                top: 220px;
+                left: 280px;
+                z-index: 52;
+                opacity: 0.8;
+                transform-origin: center;
+            }
+            #wateringCan.is-tilted {
+                transform: rotate(45deg);
+            }
+            #gaugeContainer {
+                position: absolute;
+                top: 220px;
+                left: 450px;
+                width: 30px;
+                height: 150px;
+                border: 2px solid #555;
+                border-radius: 8px;
+                overflow: hidden;
+                background: #f0f0f0;
+                box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+                z-index: 51;
+            }
+            #gaugeFill {
+                position: absolute;
+                bottom: 0;
                 width: 100%;
-                pointer-events: none; /* 제목 클릭 방해하지 않음 */
+                height: 0;
+                background: skyblue;
+                border-radius: 8px 8px 0 0;
+            }
+            iframe {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border: none;
+                z-index: 100;
+                display: none;
+            }
+            .close-button {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                font-size: 24px;
+                line-height: 40px;
+                text-align: center;
+                border-radius: 50%;
+                cursor: pointer;
+                z-index: 101;
+                display: none;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            }
+            #snakeContainer {
+                position: absolute;
+                bottom: 50px;
+                right: 50px;
+                width: 800px;
+                height: 800px;
+                transform: rotate(60deg);
+                transform-origin: bottom left;
+                z-index: 20;
+            }
+            .snake-segment {
+                position: absolute;
+                width: 36px;
+                height: 36px;
+                background: #00cc00;
+                pointer-events: none;
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            .snake-head {
+                border-radius: 50% 50% 0 0;
+            }
+            .snake-body {
+                border-radius: 50%;
+            }
+            .snake-drag-target {
+                cursor: grab;
+                pointer-events: auto;
+                z-index: 25;
+            }
+            #fireButton {
+                position: absolute;
+                left: 100px;
+                bottom: 100px;
+                width: 200px;
+                height: 300px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                z-index: 50;
+            }
+            .firework-particle {
+                position: absolute;
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
+                opacity: 1;
             }
         </style>
     </head>
     <body>
-        <div class="bookshelf-container">
-            <div class="bookshelf" id="bookshelf">
-                <!-- 책 20권 + 제목 -->
-                <div
-                    class="book"
-                    style="background: #ffd1dc"
-                    onclick="window.location.href='water.html'"
-                >
-                    <div class="book-title">Wave</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #ffb3ba"
-                    onclick="window.location.href='firework.html'"
-                >
-                    <div class="book-title">Firework</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #ffdfba"
-                    onclick="window.location.href='page3.html'"
-                >
-                    <div class="book-title">책 3</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #ffffba"
-                    onclick="window.location.href='page4.html'"
-                >
-                    <div class="book-title">책 4</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #baffc9"
-                    onclick="window.location.href='grass.html'"
-                >
-                    <div class="book-title">Grass</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #bae1ff"
-                    onclick="window.location.href='page6.html'"
-                >
-                    <div class="book-title">책 6</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #d7baff"
-                    onclick="window.location.href='page7.html'"
-                >
-                    <div class="book-title">책 7</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #ffc0cb"
-                    onclick="window.location.href='page8.html'"
-                >
-                    <div class="book-title">책 8</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #e0bbe4"
-                    onclick="window.location.href='page9.html'"
-                >
-                    <div class="book-title">책 9</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #957dad"
-                    onclick="window.location.href='page10.html'"
-                >
-                    <div class="book-title">책 10</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #fec8d8"
-                    onclick="window.location.href='page11.html'"
-                >
-                    <div class="book-title">책 11</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #ffabab"
-                    onclick="window.location.href='page12.html'"
-                >
-                    <div class="book-title">책 12</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #ffdac1"
-                    onclick="window.location.href='page13.html'"
-                >
-                    <div class="book-title">책 13</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #e2f0cb"
-                    onclick="window.location.href='page14.html'"
-                >
-                    <div class="book-title">책 14</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #b5ead7"
-                    onclick="window.location.href='page15.html'"
-                >
-                    <div class="book-title">책 15</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #c7ceea"
-                    onclick="window.location.href='page16.html'"
-                >
-                    <div class="book-title">책 16</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #ffb7b2"
-                    onclick="window.location.href='page17.html'"
-                >
-                    <div class="book-title">책 17</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #ffccb6"
-                    onclick="window.location.href='page18.html'"
-                >
-                    <div class="book-title">책 18</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #ffe4c4"
-                    onclick="window.location.href='page19.html'"
-                >
-                    <div class="book-title">책 19</div>
-                </div>
-                <div
-                    class="book"
-                    style="background: #d6eaf8"
-                    onclick="window.location.href='page20.html'"
-                >
-                    <div class="book-title">책 20</div>
-                </div>
-            </div>
+        <div class="decorative-objects">
+            <img id="wateringCan" src="img/watering_can.png" alt="물뿌리개" />
+            <img id="scoop" src="img/scoop.png" alt="바가지" />
+            <div id="gaugeContainer"><div id="gaugeFill"></div></div>
         </div>
 
+        <div class="lake-container">
+            <div class="water-level" id="waterLevel"></div>
+        </div>
+        <div class="valve-container">
+            <div class="valve" id="lakeValve"></div>
+        </div>
+
+        <iframe id="mainFrame" src="about:blank"></iframe>
+        <iframe id="snakeFrame" src="about:blank"></iframe>
+        <div class="close-button" id="closeButton">X</div>
+        <div id="snakeContainer" class="snake-drag-target"></div>
+        <button id="fireButton">
+            <img src="img/button.png" style="width: 200px; height: auto" />
+        </button>
+
         <script>
-            const shelf = document.getElementById("bookshelf");
-            const books = Array.from(shelf.children);
-            const bookWidth = books[0].offsetWidth + 10;
-            const totalWidth = bookWidth * books.length;
+            /* ===================== 인터랙션 통합 ===================== */
+            const valve = document.getElementById("lakeValve");
+            const waterLevelDiv = document.getElementById("waterLevel");
+            const mainFrame = document.getElementById("mainFrame");
+            const snakeFrame = document.getElementById("snakeFrame");
+            const closeButton = document.getElementById("closeButton");
+            const wateringCan = document.getElementById("wateringCan");
+            const gaugeFill = document.getElementById("gaugeFill");
+            const fireButton = document.getElementById("fireButton");
+            const snakeContainer = document.getElementById("snakeContainer");
 
-            // 책 복제해서 무한슬라이드
-            books.forEach((book) => {
-                const clone = book.cloneNode(true);
-                shelf.appendChild(clone);
-            });
+            let isDraggingValve = false,
+                currentValveRotation = 0;
+            let isWaterContentLoaded = false,
+                isSnakeContentLoaded = false;
+            let gaugeInterval = null,
+                gaugeLevel = 0;
+            const CHARGE_RATE = 50,
+                INCREASE_STEP = 5,
+                MAX_ROTATION = 1080,
+                TRIGGER_LEVEL_WATER = 50;
 
-            let position = 0;
-            let isDragging = false;
-            let startX = 0;
-            let startPos = 0;
+            const SEG_COUNT = 40,
+                TARGET_DIST = 15,
+                HEAD_SPEED = 0.2,
+                TAIL_FOLLOW_SPEED = 0.5;
+            const SNAKE_CONTAINER_SIZE = 800,
+                SNAKE_DISTANCE_THRESHOLD = 800;
+            const segments = [],
+                INITIAL_SEGMENT_DATA = [];
+            for (let i = 0; i < SEG_COUNT; i++)
+                INITIAL_SEGMENT_DATA.push({ x: i * TARGET_DIST, y: 0 });
 
-            shelf.addEventListener("mousedown", (e) => {
-                isDragging = true;
-                startX = e.clientX;
-                startPos = position;
-                shelf.style.cursor = "grabbing";
-            });
-            window.addEventListener("mouseup", () => {
-                isDragging = false;
-                shelf.style.cursor = "grab";
-            });
-            window.addEventListener("mousemove", (e) => {
-                if (!isDragging) return;
-                const dx = e.clientX - startX;
-                position = startPos + dx;
-                updateShelf();
-            });
-            shelf.addEventListener("touchstart", (e) => {
-                isDragging = true;
-                startX = e.touches[0].clientX;
-                startPos = position;
-            });
-            window.addEventListener("touchend", () => {
-                isDragging = false;
+            /* ---------------- Valve Logic ---------------- */
+            function lerpAngle(a, b, t) {
+                let diff = b - a;
+                while (diff > 180) diff -= 360;
+                while (diff < -180) diff += 360;
+                return a + diff * t;
+            }
+            function getAngle(x, y) {
+                const rect = valve.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                return Math.atan2(y - cy, x - cx) * (180 / Math.PI);
+            }
+            function updateValve(newRotation) {
+                newRotation = Math.max(0, Math.min(MAX_ROTATION, newRotation));
+                currentValveRotation = newRotation;
+                valve.style.transform = `rotate(${currentValveRotation}deg)`;
+                const waterLevelPercentage =
+                    (currentValveRotation / MAX_ROTATION) * 100;
+                waterLevelDiv.style.height = `${waterLevelPercentage}vh`;
+                if (waterLevelPercentage >= TRIGGER_LEVEL_WATER)
+                    loadInteractiveContent("water");
+            }
+
+            let startAngle, initialMouseAngle;
+            function handleValveStart(cx, cy) {
+                if (isWaterContentLoaded || isSnakeContentLoaded) return;
+                isDraggingValve = true;
+                startAngle = currentValveRotation;
+                initialMouseAngle = getAngle(cx, cy);
+            }
+            function handleValveMove(cx, cy) {
+                if (
+                    !isDraggingValve ||
+                    isWaterContentLoaded ||
+                    isSnakeContentLoaded
+                )
+                    return;
+                let diff = getAngle(cx, cy) - initialMouseAngle;
+                if (diff > 180) diff -= 360;
+                else if (diff < -180) diff += 360;
+                updateValve(startAngle + diff);
+            }
+            function handleValveEnd() {
+                isDraggingValve = false;
+            }
+            valve.addEventListener("mousedown", (e) =>
+                handleValveStart(e.clientX, e.clientY)
+            );
+            window.addEventListener("mousemove", (e) =>
+                handleValveMove(e.clientX, e.clientY)
+            );
+            window.addEventListener("mouseup", handleValveEnd);
+            valve.addEventListener("touchstart", (e) => {
+                e.preventDefault();
+                handleValveStart(e.touches[0].clientX, e.touches[0].clientY);
             });
             window.addEventListener("touchmove", (e) => {
-                if (!isDragging) return;
-                const dx = e.touches[0].clientX - startX;
-                position = startPos + dx;
-                updateShelf();
+                e.preventDefault();
+                handleValveMove(e.touches[0].clientX, e.touches[0].clientY);
             });
+            window.addEventListener("touchend", handleValveEnd);
 
-            let velocity = 0;
-            function animate() {
-                if (!isDragging) {
-                    velocity *= 0.95;
-                    position += velocity;
-                }
-
-                if (position <= -totalWidth) position += totalWidth;
-                if (position >= 0) position -= totalWidth;
-
-                shelf.style.transform = `translateX(${position}px)`;
-                requestAnimationFrame(animate);
+            /* ---------------- Watering Can ---------------- */
+            const tiltOnDown = (el) => {
+                el.classList.add("is-tilted");
+                if (el === wateringCan) startGaugeCharge();
+            };
+            const untiltOnUp = (el) => {
+                el.classList.remove("is-tilted");
+                if (el === wateringCan) stopGaugeCharge();
+            };
+            function startGaugeCharge() {
+                if (gaugeInterval) return;
+                gaugeLevel = 0;
+                gaugeFill.style.height = "0%";
+                gaugeInterval = setInterval(() => {
+                    gaugeLevel += INCREASE_STEP;
+                    if (gaugeLevel >= 100) {
+                        gaugeLevel = 100;
+                        clearInterval(gaugeInterval);
+                        gaugeInterval = null;
+                        loadInteractiveContent("grass");
+                    }
+                    gaugeFill.style.height = `${gaugeLevel}%`;
+                }, CHARGE_RATE);
             }
-            animate();
-
-            shelf.addEventListener("mouseup", (e) => {
-                if (!isDragging) return;
-                const dx = e.clientX - startX;
-                velocity = dx * 0.2;
+            function stopGaugeCharge() {
+                clearInterval(gaugeInterval);
+                gaugeInterval = null;
+                if (gaugeLevel < 100) {
+                    gaugeLevel = 0;
+                    gaugeFill.style.height = "0%";
+                }
+            }
+            wateringCan.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                tiltOnDown(wateringCan);
             });
-            shelf.addEventListener("touchend", (e) => {
-                if (!isDragging) return;
-                const dx = e.changedTouches[0].clientX - startX;
-                velocity = dx * 0.2;
+            wateringCan.addEventListener("mouseup", () =>
+                untiltOnUp(wateringCan)
+            );
+            wateringCan.addEventListener("touchstart", (e) => {
+                e.preventDefault();
+                tiltOnDown(wateringCan);
             });
+            wateringCan.addEventListener("touchend", () =>
+                untiltOnUp(wateringCan)
+            );
 
-            function updateShelf() {
-                shelf.style.transform = `translateX(${position}px)`;
+            /* ---------------- Snake Logic ---------------- */
+            let dragStartPos = { x: 0, y: 0 },
+                dragTarget = { x: 0, y: 0 },
+                dragStarted = false,
+                isDraggingSnake = false;
+            function handleSnakeStart(cx, cy) {
+                if (isWaterContentLoaded || isSnakeContentLoaded) return;
+                dragStartPos.x = cx;
+                dragStartPos.y = cy;
+                dragStarted = true;
+                isDraggingSnake = false;
+            }
+            function handleSnakeMove(cx, cy) {
+                if (dragStarted && !isDraggingSnake) {
+                    const d = Math.hypot(
+                        cx - dragStartPos.x,
+                        cy - dragStartPos.y
+                    );
+                    if (d > 30) isDraggingSnake = true;
+                }
+                if (isDraggingSnake) {
+                    dragTarget.x = cx;
+                    dragTarget.y = cy;
+                }
+            }
+            function handleSnakeEnd() {
+                dragStarted = false;
+                isDraggingSnake = false;
+            }
+            snakeContainer.addEventListener("mousedown", (e) =>
+                handleSnakeStart(e.clientX, e.clientY)
+            );
+            window.addEventListener("mousemove", (e) =>
+                handleSnakeMove(e.clientX, e.clientY)
+            );
+            window.addEventListener("mouseup", handleSnakeEnd);
+            snakeContainer.addEventListener("touchstart", (e) =>
+                handleSnakeStart(e.touches[0].clientX, e.touches[0].clientY)
+            );
+            window.addEventListener("touchmove", (e) =>
+                handleSnakeMove(e.touches[0].clientX, e.touches[0].clientY)
+            );
+            window.addEventListener("touchend", handleSnakeEnd);
+
+            function createSnake() {
+                for (let i = 0; i < SEG_COUNT; i++) {
+                    const seg = document.createElement("div");
+                    seg.className =
+                        "snake-segment " +
+                        (i === 0 ? "snake-head" : "snake-body");
+                    seg.style.left = INITIAL_SEGMENT_DATA[i].x + "px";
+                    seg.style.top = INITIAL_SEGMENT_DATA[i].y + "px";
+                    snakeContainer.appendChild(seg);
+                    segments.push({
+                        el: seg,
+                        x: INITIAL_SEGMENT_DATA[i].x,
+                        y: INITIAL_SEGMENT_DATA[i].y,
+                        angle: 0,
+                    });
+                }
+            }
+            createSnake();
+            function updateSnake() {
+                const rect = snakeContainer.getBoundingClientRect();
+                const currentHeadSpeed = isDraggingSnake ? HEAD_SPEED : 0.05;
+                if (isDraggingSnake) {
+                    const centerX = rect.left + rect.width / 2,
+                        centerY = rect.top + rect.height / 2;
+                    const mouseRelX = dragTarget.x - centerX,
+                        mouseRelY = dragTarget.y - centerY;
+                    const invAngle = (-60 * Math.PI) / 180,
+                        invCos = Math.cos(invAngle),
+                        invSin = Math.sin(invAngle);
+                    const rotatedX = mouseRelX * invCos - mouseRelY * invSin,
+                        rotatedY = mouseRelX * invSin + mouseRelY * invCos;
+                    const targetLocalX = rotatedX + SNAKE_CONTAINER_SIZE / 2,
+                        targetLocalY = rotatedY + SNAKE_CONTAINER_SIZE / 2;
+                    segments[0].x +=
+                        (targetLocalX - segments[0].x) * currentHeadSpeed;
+                    segments[0].y +=
+                        (targetLocalY - segments[0].y) * currentHeadSpeed;
+                    const distFromInitial = Math.hypot(
+                        segments[0].x - INITIAL_SEGMENT_DATA[0].x,
+                        segments[0].y - INITIAL_SEGMENT_DATA[0].y
+                    );
+                    if (distFromInitial > SNAKE_DISTANCE_THRESHOLD)
+                        loadInteractiveContent("snake");
+                    let dxHead = segments[0].x - segments[1].x,
+                        dyHead = segments[0].y - segments[1].y;
+                    segments[0].angle = lerpAngle(
+                        segments[0].angle,
+                        (Math.atan2(dyHead, dxHead) * 180) / Math.PI,
+                        0.5
+                    );
+                    for (let i = 1; i < segments.length; i++) {
+                        let prev = segments[i - 1],
+                            seg = segments[i];
+                        let dx = prev.x - seg.x,
+                            dy = prev.y - seg.y,
+                            dist = Math.hypot(dx, dy);
+                        if (dist > TARGET_DIST) {
+                            const angle = Math.atan2(dy, dx);
+                            seg.x +=
+                                (prev.x -
+                                    Math.cos(angle) * TARGET_DIST -
+                                    seg.x) *
+                                TAIL_FOLLOW_SPEED;
+                            seg.y +=
+                                (prev.y -
+                                    Math.sin(angle) * TARGET_DIST -
+                                    seg.y) *
+                                TAIL_FOLLOW_SPEED;
+                            seg.angle = (angle * 180) / Math.PI;
+                        } else {
+                            seg.x += dx * 0.1;
+                            seg.y += dy * 0.1;
+                            seg.angle = lerpAngle(seg.angle, prev.angle, 0.2);
+                        }
+                    }
+                } else {
+                    for (let i = 0; i < segments.length; i++) {
+                        const ini = INITIAL_SEGMENT_DATA[i];
+                        segments[i].x +=
+                            (ini.x - segments[i].x) * currentHeadSpeed;
+                        segments[i].y +=
+                            (ini.y - segments[i].y) * currentHeadSpeed;
+                    }
+                }
+                segments.forEach(
+                    (s) =>
+                        (s.el.style.transform = `translate(${s.x}px,${
+                            s.y
+                        }px) rotate(${s.angle + 90}deg)`)
+                );
+                requestAnimationFrame(updateSnake);
+            }
+            updateValve(0);
+            updateSnake();
+
+            /* ---------------- Interactive Content ---------------- */
+            function loadInteractiveContent(type) {
+                if (type === "grass") {
+                    if (isWaterContentLoaded || isSnakeContentLoaded)
+                        closeInteractiveContent();
+                    isWaterContentLoaded = true;
+                    mainFrame.src = "grass.html";
+                    mainFrame.style.display = "block";
+                    closeButton.style.display = "block";
+                    return;
+                }
+                if (type === "water" && !isWaterContentLoaded) {
+                    isWaterContentLoaded = true;
+                    mainFrame.src = "water.html";
+                    mainFrame.style.display = "block";
+                    snakeFrame.style.display = "none";
+                    isSnakeContentLoaded = false;
+                } else if (type === "snake" && !isSnakeContentLoaded) {
+                    isSnakeContentLoaded = true;
+                    snakeFrame.src = "snake.html";
+                    snakeFrame.style.display = "block";
+                    mainFrame.style.display = "none";
+                    isWaterContentLoaded = false;
+                }
+                closeButton.style.display = "block";
+            }
+            function closeInteractiveContent() {
+                isWaterContentLoaded = false;
+                isSnakeContentLoaded = false;
+                mainFrame.style.display = "none";
+                snakeFrame.style.display = "none";
+                closeButton.style.display = "none";
+                mainFrame.src = "about:blank";
+                snakeFrame.src = "about:blank";
+                if (!isDraggingValve && currentValveRotation > 0)
+                    updateValve(0);
+            }
+            closeButton.onclick = closeInteractiveContent;
+
+            /* ---------------- Firework ---------------- */
+            fireButton.addEventListener("click", () =>
+                launchMultipleFireworks(5, 150)
+            );
+            function launchMultipleFireworks(count, interval) {
+                let launched = 0;
+                const timer = setInterval(() => {
+                    if (launched >= count) {
+                        clearInterval(timer);
+                        return;
+                    }
+                    launchFireworkFromBottom();
+                    launched++;
+                }, interval);
+            }
+            function launchFireworkFromBottom() {
+                const x =
+                    Math.random() * window.innerWidth * 0.8 +
+                    window.innerWidth * 0.1;
+                const yStart = window.innerHeight - 10;
+                const yTarget = Math.random() * window.innerHeight * 0.5 + 100;
+                const rocket = document.createElement("div");
+                rocket.style.position = "absolute";
+                rocket.style.width = "10px";
+                rocket.style.height = "20px";
+                rocket.style.background = "red";
+                rocket.style.left = x + "px";
+                rocket.style.top = yStart + "px";
+                rocket.style.zIndex = "1000";
+                rocket.style.borderRadius = "5px";
+                document.body.appendChild(rocket);
+                const speed = 7 + Math.random() * 3;
+                const interval = setInterval(() => {
+                    const curr = parseFloat(rocket.style.top);
+                    if (curr <= yTarget) {
+                        clearInterval(interval);
+                        document.body.removeChild(rocket);
+                        explodeFirework(x, yTarget);
+                    } else rocket.style.top = curr - speed + "px";
+                }, 16);
+            }
+            function explodeFirework(x, y) {
+                const colors = [
+                    "red",
+                    "yellow",
+                    "blue",
+                    "orange",
+                    "purple",
+                    "cyan",
+                    "lime",
+                ];
+                for (let i = 0; i < 25 + Math.random() * 10; i++) {
+                    const p = document.createElement("div");
+                    p.className = "firework-particle";
+                    p.style.background =
+                        colors[Math.floor(Math.random() * colors.length)];
+                    p.style.left = x + "px";
+                    p.style.top = y + "px";
+                    document.body.appendChild(p);
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 6 + 2;
+                    let vx = Math.cos(angle) * speed,
+                        vy = Math.sin(angle) * speed,
+                        alpha = 1;
+                    const anim = setInterval(() => {
+                        const px = parseFloat(p.style.left),
+                            py = parseFloat(p.style.top);
+                        vy += 0.15;
+                        p.style.left = px + vx + "px";
+                        p.style.top = py + vy + "px";
+                        alpha -= 0.03;
+                        p.style.opacity = alpha;
+                        if (alpha <= 0) {
+                            clearInterval(anim);
+                            p.remove();
+                        }
+                    }, 16);
+                }
             }
         </script>
     </body>

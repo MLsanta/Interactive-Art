@@ -13,27 +13,9 @@
             canvas {
                 display: block;
             }
-            #homeButton {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 10px 20px;
-                background-color: #ffffffcc;
-                border: 2px solid #2e8b57;
-                border-radius: 8px;
-                cursor: pointer;
-                font-weight: bold;
-                z-index: 10;
-                transition: 0.2s;
-            }
-            #homeButton:hover {
-                background-color: #2e8b57;
-                color: white;
-            }
         </style>
     </head>
     <body>
-        <button id="homeButton">HOME</button>
         <canvas id="canvas"></canvas>
 
         <script>
@@ -42,27 +24,25 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            document
-                .getElementById("homeButton")
-                .addEventListener("click", () => {
-                    window.location.href = "/";
-                });
-
-            const GRASS_COUNT = 80;
+            // ⭐️ 수정: 풀 개수 증가
+            const GRASS_COUNT = 120; // 80 -> 120
             const grasses = [];
             for (let i = 0; i < GRASS_COUNT; i++) {
+                // ⭐️ 수정: maxHeight를 화면 높이의 50% ~ 90%까지 대폭 증가
+                const maxH = canvas.height * (0.5 + Math.random() * 0.4); // 50% ~ 90%
+
                 grasses.push({
                     x: Math.random() * canvas.width,
                     baseY: canvas.height,
                     height: 10 + Math.random() * 30,
-                    maxHeight: 300 + Math.random() * 200,
+                    maxHeight: maxH, // 수정된 최대 높이 적용
                     baseSpeed: 0.1,
-                    growthDelay: Math.random() * 50,
+                    growthDelay: Math.random() * 30, // 딜레이를 약간 줄여 더 빠르게 반응
                     frameCounter: 0,
                 });
             }
 
-            const SOUND_THRESHOLD = 1; // 소리가 일정 수준 이상일 때만 성장
+            const SOUND_THRESHOLD = 15; // RMS*100 기준
 
             navigator.mediaDevices
                 .getUserMedia({ audio: true, video: false })
@@ -80,15 +60,19 @@
 
                     function drawGrass(grass, volume) {
                         grass.frameCounter++;
+
                         if (
                             volume > SOUND_THRESHOLD &&
                             grass.frameCounter > grass.growthDelay
                         ) {
-                            // 성장 속도 빠르게: 0.5로 증가, 최소 0.5씩 성장
-                            const growth = Math.max(
-                                (volume - SOUND_THRESHOLD) * 2,
-                                0.5
+                            const normalizedVolume = Math.max(
+                                volume - SOUND_THRESHOLD,
+                                0
                             );
+
+                            // ⭐️ 수정: 성장 계수 0.5 -> 1.0으로 증가시켜 성장 속도 가속
+                            const growth = 1 + normalizedVolume * 1.0;
+
                             grass.height = Math.min(
                                 grass.height + growth,
                                 grass.maxHeight
@@ -102,9 +86,11 @@
 
                         ctx.beginPath();
                         ctx.fillStyle = "#2e8b57";
+
                         ctx.moveTo(grass.x - 5, grass.baseY);
                         ctx.lineTo(grass.x + sway, grass.baseY - grass.height);
                         ctx.lineTo(grass.x + 5, grass.baseY);
+
                         ctx.closePath();
                         ctx.fill();
                     }
@@ -112,7 +98,6 @@
                     function draw() {
                         analyser.getByteFrequencyData(dataArray);
 
-                        // RMS 기반 볼륨 계산
                         let sumSquares = 0;
                         for (let i = 0; i < dataArray.length; i++) {
                             const val = dataArray[i] / 255;
@@ -133,12 +118,19 @@
                 })
                 .catch((err) => {
                     console.error("마이크 접근 오류:", err);
-                    alert("마이크 접근이 필요합니다.");
+                    alert(
+                        "마이크 접근 오류: 이 기능을 사용하려면 마이크 접근 권한이 필요합니다."
+                    );
                 });
 
             window.addEventListener("resize", () => {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+                // 리사이즈 시 풀의 최대 높이도 다시 계산하여 적용합니다.
+                grasses.forEach((grass) => {
+                    grass.maxHeight =
+                        canvas.height * (0.5 + Math.random() * 0.4);
+                });
             });
         </script>
     </body>
