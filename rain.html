@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Type Rain Interaction</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                color-scheme: dark;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                min-height: 100vh;
+                background: radial-gradient(
+                    circle at 20% 20%,
+                    #16213e,
+                    #050912
+                );
+                font-family: "Pretendard", "Noto Sans KR", sans-serif;
+                color: #e3f2ff;
+                overflow: hidden;
+            }
+            .top-bar {
+                position: fixed;
+                top: 16px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: min(90vw, 560px);
+                display: flex;
+                gap: 12px;
+                align-items: center;
+                background: rgba(5, 9, 18, 0.75);
+                border-radius: 999px;
+                padding: 14px 20px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+                backdrop-filter: blur(8px);
+                z-index: 200;
+            }
+            .top-bar input {
+                flex: 1;
+                font-size: 18px;
+                border: none;
+                background: transparent;
+                color: inherit;
+                outline: none;
+            }
+            .top-bar button {
+                border: none;
+                border-radius: 999px;
+                padding: 8px 18px;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                cursor: pointer;
+                background: linear-gradient(120deg, #4facfe, #00f2fe);
+                color: #05101f;
+                font-weight: bold;
+            }
+            .rain-drop {
+                position: absolute;
+                top: -50px;
+                font-size: clamp(18px, 3vw, 32px);
+                font-weight: 600;
+                color: rgba(255, 255, 255, 0.9);
+                text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
+                will-change: transform, opacity;
+            }
+            .title-text {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 80px;
+                font-family: "Montserrat", "Oswald", sans-serif;
+                font-weight: 800;
+                color: #fff;
+                letter-spacing: 0.2em;
+                pointer-events: none;
+                z-index: 10;
+                text-transform: uppercase;
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+                    0 0 40px rgba(255, 255, 255, 0.6),
+                    0 0 60px rgba(255, 255, 255, 0.4),
+                    0 4px 8px rgba(0, 0, 0, 0.5), 0 8px 16px rgba(0, 0, 0, 0.3);
+                -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+                animation: titlePulse 2s ease-in-out infinite;
+            }
+            @keyframes titlePulse {
+                0%,
+                100% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+                50% {
+                    opacity: 0.9;
+                    transform: translate(-50%, -50%) scale(1.02);
+                }
+            }
+            #rainStage {
+                position: fixed;
+                inset: 0;
+                overflow: hidden;
+                pointer-events: none;
+                z-index: 5;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="top-bar">
+            <input
+                id="textInput"
+                type="text"
+                placeholder="여기에 글자를 입력해 보세요"
+                autocomplete="off"
+            />
+            <button id="clearButton">Clear</button>
+        </div>
+        <div class="title-text">TYPE!</div>
+        <div id="rainStage"></div>
+
+        <script>
+            const stage = document.getElementById("rainStage");
+            const input = document.getElementById("textInput");
+            const clearButton = document.getElementById("clearButton");
+            const drops = [];
+            const MAX_DROPS = 180;
+            const FLOOR_OFFSET = 40;
+            const restingLayers = [];
+            const MAX_LAYERS = 18;
+
+            input.focus();
+
+            input.addEventListener("input", () => {
+                const value = input.value;
+                if (!value) return;
+                const char = value[value.length - 1];
+                spawnDrop(char);
+            });
+
+            clearButton.addEventListener("click", () => {
+                input.value = "";
+                drops.splice(0, drops.length);
+                stage.innerHTML = "";
+            });
+
+            function spawnDrop(char) {
+                const dropEl = document.createElement("span");
+                dropEl.className = "rain-drop";
+                dropEl.textContent = char;
+                const startX = Math.random() * window.innerWidth;
+                dropEl.style.left = `${startX}px`;
+                stage.appendChild(dropEl);
+
+                drops.push({
+                    el: dropEl,
+                    x: startX,
+                    y: -50,
+                    speedY: 3 + Math.random() * 4,
+                    drift: Math.random() * 0.6 - 0.3,
+                    life: 0,
+                    maxLife: 300 + Math.random() * 140,
+                    resting: false,
+                    restLife: 0,
+                    layerIndex: null,
+                });
+
+                if (drops.length > MAX_DROPS) {
+                    const old = drops.shift();
+                    old.el.remove();
+                }
+            }
+
+            function update() {
+                for (let i = drops.length - 1; i >= 0; i--) {
+                    const drop = drops[i];
+                    drop.life++;
+                    if (!drop.resting) {
+                        drop.y += drop.speedY;
+                        drop.x += drop.drift;
+                        if (drop.y >= window.innerHeight - FLOOR_OFFSET) {
+                            drop.layerIndex = stackLayer(drop.x);
+                            drop.y =
+                                window.innerHeight -
+                                FLOOR_OFFSET -
+                                drop.layerIndex * 6;
+                            drop.resting = true;
+                            drop.restLife = 160 + Math.random() * 120;
+                            drop.speedY = 0;
+                            drop.drift = 0;
+                        }
+                    } else {
+                        drop.restLife -= 1;
+                    }
+                    drop.el.style.transform = `translate(${drop.x}px, ${
+                        drop.y
+                    }px) scale(${drop.resting ? 0.85 : 1})`;
+                    const opacity = drop.resting
+                        ? Math.max(0, drop.restLife / 120)
+                        : drop.life > drop.maxLife - 60
+                        ? Math.max(0, (drop.maxLife - drop.life) / 60)
+                        : 1;
+                    drop.el.style.opacity = opacity;
+                    drop.el.style.filter = `blur(${Math.max(
+                        0,
+                        (drop.life / drop.maxLife) * 1.5 - 0.3
+                    )}px)`;
+
+                    if (
+                        drop.life > drop.maxLife ||
+                        (drop.resting && drop.restLife <= 0)
+                    ) {
+                        if (drop.layerIndex !== null)
+                            releaseLayer(drop.x, drop.layerIndex);
+                        drop.el.remove();
+                        drops.splice(i, 1);
+                    }
+                }
+                requestAnimationFrame(update);
+            }
+            update();
+
+            function stackLayer(x) {
+                const index = Math.min(
+                    MAX_LAYERS - 1,
+                    Math.floor((x / window.innerWidth) * MAX_LAYERS)
+                );
+                restingLayers[index] = (restingLayers[index] || 0) + 1;
+                return restingLayers[index];
+            }
+
+            function releaseLayer(x, layerIndex) {
+                const index = Math.min(
+                    MAX_LAYERS - 1,
+                    Math.floor((x / window.innerWidth) * MAX_LAYERS)
+                );
+                if (restingLayers[index])
+                    restingLayers[index] = Math.max(
+                        0,
+                        restingLayers[index] - 1
+                    );
+            }
+        </script>
+    </body>
+</html>

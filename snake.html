@@ -3,6 +3,12 @@
     <head>
         <meta charset="UTF-8" />
         <title>Interactive Art - Snake</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap"
+            rel="stylesheet"
+        />
         <style>
             body,
             html {
@@ -42,9 +48,48 @@
                 background: red;
                 pointer-events: none;
             }
+            .title-text {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 80px;
+                font-family: "Montserrat", "Oswald", sans-serif;
+                font-weight: 800;
+                color: #fff;
+                letter-spacing: 0.2em;
+                pointer-events: none;
+                z-index: 10;
+                text-transform: uppercase;
+                text-shadow: 
+                    0 0 20px rgba(255, 255, 255, 0.8),
+                    0 0 40px rgba(255, 255, 255, 0.6),
+                    0 0 60px rgba(255, 255, 255, 0.4),
+                    0 4px 8px rgba(0, 0, 0, 0.5),
+                    0 8px 16px rgba(0, 0, 0, 0.3);
+                -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+                animation: titlePulse 2s ease-in-out infinite;
+            }
+            @keyframes titlePulse {
+                0%,
+                100% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+                50% {
+                    opacity: 0.9;
+                    transform: translate(-50%, -50%) scale(1.02);
+                }
+            }
+            .snake-segment,
+            .food {
+                z-index: 5;
+            }
         </style>
     </head>
     <body>
+        <div class="title-text">EAT!</div>
         <script>
             const segmentSpacing = 20;
             let snake = [];

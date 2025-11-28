@@ -3,6 +3,12 @@
     <head>
         <meta charset="UTF-8" />
         <title>무한 슬라이드 파스텔 카드</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap"
+            rel="stylesheet"
+        />
         <style>
             html,
             body {
@@ -12,7 +18,7 @@
                 height: 100%;
                 overflow: hidden;
                 background: #222;
-                perspective: 1200px;
+                perspective: 2000px;
             }
 
             .cards-container {
@@ -68,9 +74,45 @@
                 );
                 mix-blend-mode: overlay;
             }
+
+            .title-text {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 80px;
+                font-family: "Montserrat", "Oswald", sans-serif;
+                font-weight: 800;
+                color: #fff;
+                letter-spacing: 0.2em;
+                pointer-events: none;
+                z-index: 100;
+                text-transform: uppercase;
+                text-shadow: 
+                    0 0 20px rgba(255, 255, 255, 0.8),
+                    0 0 40px rgba(255, 255, 255, 0.6),
+                    0 0 60px rgba(255, 255, 255, 0.4),
+                    0 4px 8px rgba(0, 0, 0, 0.5),
+                    0 8px 16px rgba(0, 0, 0, 0.3);
+                -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+                animation: titlePulse 2s ease-in-out infinite;
+            }
+            @keyframes titlePulse {
+                0%,
+                100% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+                50% {
+                    opacity: 0.9;
+                    transform: translate(-50%, -50%) scale(1.02);
+                }
+            }
         </style>
     </head>
     <body>
+        <div class="title-text">FLIP-IT!</div>
         <div class="cards-container" id="cardsContainer"></div>
 
         <script>
@@ -164,9 +206,9 @@
                     const dy = mouseY - cardY;
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
-                    const factor = Math.max(0, 1 - distance / 400);
-                    const rotateY = (dx / 5) * factor;
-                    const rotateX = (-dy / 5) * factor;
+                    const factor = Math.max(0, 1 - distance / 500);
+                    const rotateY = (dx / 3) * factor;
+                    const rotateX = (-dy / 3) * factor;
 
                     card.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
 

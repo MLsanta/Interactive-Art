@@ -4,6 +4,12 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Interactive Art - Collage</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap"
+            rel="stylesheet"
+        />
         <style>
             body {
                 margin: 0;
@@ -58,6 +64,329 @@
                 display: flex;
                 flex-direction: column;
                 gap: 15px;
+            }
+            .drag-card-area {
+                position: absolute;
+                top: 100px;
+                right: 100px;
+                width: 180px;
+                height: 280px;
+                perspective: 1200px;
+                z-index: 60;
+            }
+            .droplet-pad {
+                position: absolute;
+                top: 110px;
+                right: 420px;
+                width: 320px;
+                height: 220px;
+                border-radius: 60% 40% 65% 35% / 45% 60% 40% 55%;
+                border: 2px solid var(--lake-border, rgba(90, 150, 190, 0.5));
+                background: radial-gradient(
+                        circle at 35% 25%,
+                        rgba(255, 255, 255, 0.8),
+                        transparent 45%
+                    ),
+                    radial-gradient(
+                        circle at 70% 60%,
+                        var(--lake-gradient1, rgba(200, 230, 255, 0.9)),
+                        var(--lake-gradient2, rgba(120, 190, 220, 0.65))
+                    );
+                box-shadow: inset 0 0 25px
+                        var(--lake-shadow, rgba(0, 30, 60, 0.35)),
+                    0 15px 30px rgba(0, 0, 0, 0.2);
+                overflow: hidden;
+                cursor: pointer;
+                z-index: 58;
+                transition: border-color 0.4s ease, background 0.4s ease,
+                    box-shadow 0.4s ease;
+            }
+            .droplet-pad::before {
+                content: "";
+                position: absolute;
+                inset: 12px 16px;
+                border-radius: inherit;
+                background: radial-gradient(
+                    circle at 40% 30%,
+                    var(--lake-inner1, rgba(255, 255, 255, 0.55)),
+                    var(--lake-inner2, rgba(110, 170, 210, 0.4))
+                );
+                filter: blur(4px);
+                opacity: 0.7;
+                transition: background 0.4s ease;
+            }
+            .guide-lake {
+                top: 140px;
+                right: 460px;
+            }
+            .start-panel {
+                position: absolute;
+                top: 160px;
+                left: 640px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                z-index: 70;
+            }
+            .start-panel label {
+                font-size: 14px;
+                color: #0a2b32;
+                letter-spacing: 0.06em;
+                font-weight: bold;
+            }
+            .start-panel input {
+                width: 220px;
+                padding: 10px 14px;
+                border-radius: 999px;
+                border: 2px solid rgba(10, 80, 120, 0.4);
+                background: rgba(255, 255, 255, 0.7);
+                font-size: 16px;
+                outline: none;
+                transition: border 0.2s ease, box-shadow 0.2s ease;
+            }
+            .start-panel input:focus {
+                border-color: rgba(30, 120, 180, 0.8);
+                box-shadow: 0 0 10px rgba(40, 140, 200, 0.4);
+            }
+            .guide-badge {
+                position: absolute;
+                padding: 6px 12px;
+                background: rgba(0, 0, 0, 0.6);
+                color: #fff;
+                border-radius: 999px;
+                font-size: 12px;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                pointer-events: none;
+                z-index: 80;
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.35);
+            }
+            .guide-can {
+                top: 230px;
+                left: 60px;
+            }
+            .guide-valve {
+                top: calc(50% + 350px);
+                left: 50%;
+                transform: translate(-50%, 0);
+            }
+            .guide-card {
+                top: 70px;
+                right: 120px;
+            }
+            .guide-snake {
+                bottom: 200px;
+                right: 240px;
+            }
+            .guide-fire {
+                bottom: 370px;
+                left: 130px;
+            }
+            .title-text {
+                position: fixed;
+                top: 45%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 70px;
+                font-family: "Montserrat", "Oswald", sans-serif;
+                font-weight: 800;
+                color: #000;
+                letter-spacing: 0.15em;
+                pointer-events: none;
+                z-index: 1;
+                text-transform: uppercase;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+                    0 0 20px rgba(255, 255, 255, 0.6),
+                    0 2px 4px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2),
+                    0 8px 16px rgba(0, 0, 0, 0.15);
+                -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+            }
+            .droplet-count {
+                position: absolute;
+                top: 14px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 18px;
+                font-weight: bold;
+                color: #0b2731;
+                text-shadow: 0 2px 6px rgba(255, 255, 255, 0.4);
+                pointer-events: none;
+            }
+            .droplet {
+                position: absolute;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background: radial-gradient(
+                        circle at 30% 20%,
+                        rgba(255, 255, 255, 0.95),
+                        transparent 55%
+                    ),
+                    radial-gradient(
+                        circle at 60% 75%,
+                        rgba(120, 200, 255, 0.85),
+                        rgba(70, 140, 200, 0.45)
+                    );
+                transform: translate(-50%, -50%) scale(0.25);
+                pointer-events: none;
+                animation: droplet-expand 1.25s ease-out forwards;
+                box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.5);
+                mix-blend-mode: screen;
+            }
+            .droplet::after {
+                content: "";
+                position: absolute;
+                inset: 6px 12px;
+                border-radius: 50%;
+                background: linear-gradient(
+                    180deg,
+                    rgba(255, 255, 255, 0.9),
+                    rgba(255, 255, 255, 0.1)
+                );
+                opacity: 0.65;
+            }
+            .droplet::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.15);
+                opacity: 0.5;
+            }
+            @keyframes droplet-expand {
+                0% {
+                    transform: translate(-50%, -50%) scale(0.2);
+                    opacity: 0.95;
+                }
+                60% {
+                    opacity: 0.7;
+                }
+                100% {
+                    transform: translate(-50%, -50%) scale(4.2);
+                    opacity: 0;
+                }
+            }
+            .droplet-ring {
+                position: absolute;
+                width: 30px;
+                height: 30px;
+                border: 2px solid rgba(255, 255, 255, 0.6);
+                border-radius: 50%;
+                transform: translate(-50%, -50%) scale(0.4);
+                animation: droplet-ring-wave 1.2s ease-out forwards;
+                pointer-events: none;
+                mix-blend-mode: screen;
+                opacity: 0.8;
+            }
+            @keyframes droplet-ring-wave {
+                0% {
+                    transform: translate(-50%, -50%) scale(0.4);
+                    opacity: 0.9;
+                }
+                100% {
+                    transform: translate(-50%, -50%) scale(2.8);
+                    opacity: 0;
+                }
+            }
+            .droplet-bubble {
+                position: absolute;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.9);
+                box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+                transform: translate(-50%, -50%);
+                animation: droplet-bubble-rise 1.1s ease-out forwards;
+                pointer-events: none;
+            }
+            @keyframes droplet-bubble-rise {
+                0% {
+                    opacity: 0.8;
+                    transform: translate(-50%, -50%) scale(0.4);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translate(-50%, -80%) scale(1.1);
+                }
+            }
+            .card-frame-container {
+                position: fixed;
+                inset: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 1);
+                display: none;
+                z-index: 200;
+                align-items: center;
+                justify-content: center;
+            }
+            .card-frame-container.is-visible {
+                display: flex;
+            }
+            .card-frame-viewport {
+                width: 100%;
+                height: 100%;
+                position: relative;
+            }
+            .card-frame-viewport iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+                position: static;
+                display: block;
+                z-index: 0;
+            }
+            .card-frame-close {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                width: 44px;
+                height: 44px;
+                border: none;
+                border-radius: 50%;
+                background: rgba(0, 0, 0, 0.7);
+                color: #fff;
+                font-size: 22px;
+                cursor: pointer;
+                z-index: 5;
+            }
+            .flip-card {
+                width: 100%;
+                height: 100%;
+                border-radius: 18px;
+                transform-style: preserve-3d;
+                transition: transform 0.35s ease, box-shadow 0.3s ease;
+                cursor: grab;
+                background: transparent;
+                touch-action: none;
+                transform: rotateY(0deg);
+            }
+            .flip-card.is-dragging {
+                cursor: grabbing;
+            }
+            .flip-card-face {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                border-radius: 18px;
+                background-size: cover;
+                background-position: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+                overflow: hidden;
+                backface-visibility: hidden;
+                text-align: center;
+            }
+            .card-front {
+                background-image: url("img/spadeAce.png");
+            }
+            .card-back {
+                transform: rotateY(180deg);
+                background-image: url("img/cardBack.png");
             }
             #wateringCan {
                 width: 300px;
@@ -143,17 +472,52 @@
             }
             .snake-segment {
                 position: absolute;
-                width: 36px;
-                height: 36px;
-                background: #00cc00;
+                width: 44px;
+                height: 44px;
+                background: radial-gradient(
+                    circle at 30% 30%,
+                    #f3ffd9,
+                    #1d8f4f
+                );
+                border-radius: 60% 60% 45% 45%;
                 pointer-events: none;
+                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
                 transform: translate(-50%, -50%) rotate(0deg);
+                transition: filter 0.2s;
             }
             .snake-head {
-                border-radius: 50% 50% 0 0;
+                border-radius: 65% 65% 45% 45%;
+                background: radial-gradient(
+                    circle at 40% 35%,
+                    #fff2c7,
+                    #18804c
+                );
+                position: relative;
+            }
+            .snake-head::before,
+            .snake-head::after {
+                content: "";
+                position: absolute;
+                width: 8px;
+                height: 10px;
+                border-radius: 50%;
+                background: #0a1a1d;
+                top: 18px;
+                box-shadow: 0 0 4px rgba(10, 26, 29, 0.4);
+            }
+            .snake-head::before {
+                left: 14px;
+            }
+            .snake-head::after {
+                right: 14px;
             }
             .snake-body {
-                border-radius: 50%;
+                border-radius: 50% 50% 40% 40%;
+                background: radial-gradient(
+                    circle at 30% 30%,
+                    #d6ffba,
+                    #2f9b58
+                );
             }
             .snake-drag-target {
                 cursor: grab;
@@ -173,20 +537,112 @@
             }
             .firework-particle {
                 position: absolute;
-                width: 7px;
-                height: 7px;
+                width: 10px;
+                height: 10px;
                 border-radius: 50%;
                 pointer-events: none;
-                z-index: 9999;
+                z-index: 1200;
                 opacity: 1;
+                mix-blend-mode: screen;
+                filter: blur(0.3px);
+            }
+            .firework-rocket {
+                position: absolute;
+                width: 12px;
+                height: 28px;
+                border-radius: 6px;
+                background: linear-gradient(180deg, #fff4c2, #ff4d4d);
+                box-shadow: 0 0 15px rgba(255, 180, 80, 0.8);
+                z-index: 1200;
+            }
+            .firework-spark {
+                position: absolute;
+                width: 6px;
+                height: 20px;
+                border-radius: 3px;
+                background: linear-gradient(
+                    180deg,
+                    rgba(255, 255, 255, 0.8),
+                    transparent
+                );
+                opacity: 0.8;
+                transform: translate(-50%, -50%) rotate(-15deg);
+                animation: firework-spark-fade 0.4s ease-out forwards;
+                z-index: 1100;
+            }
+            @keyframes firework-spark-fade {
+                0% {
+                    opacity: 0.9;
+                    transform: translate(-50%, -50%) scaleY(1);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scaleY(0.2);
+                }
+            }
+            .firework-glow {
+                position: absolute;
+                width: 120px;
+                height: 120px;
+                margin-left: -60px;
+                margin-top: -60px;
+                border-radius: 50%;
+                background: radial-gradient(
+                    circle,
+                    rgba(255, 255, 255, 0.8),
+                    transparent 70%
+                );
+                pointer-events: none;
+                opacity: 0.7;
+                animation: firework-glow-pulse 0.6s ease-out forwards;
+                z-index: 1100;
+            }
+            @keyframes firework-glow-pulse {
+                0% {
+                    transform: scale(0.4);
+                    opacity: 0.8;
+                }
+                100% {
+                    transform: scale(1.5);
+                    opacity: 0;
+                }
             }
         </style>
     </head>
     <body>
+        <div class="title-text">INTERACTIVE - ART</div>
         <div class="decorative-objects">
             <img id="wateringCan" src="img/watering_can.png" alt="물뿌리개" />
             <img id="scoop" src="img/scoop.png" alt="바가지" />
             <div id="gaugeContainer"><div id="gaugeFill"></div></div>
+        </div>
+        <div class="droplet-pad" id="dropletPad"></div>
+        <div class="guide-badge guide-lake">
+            클릭하여 물방울을 6방울 떨어뜨려 보세요
+        </div>
+        <div class="start-panel">
+            <label for="startInput">RAIN ACCESS</label>
+            <input
+                id="startInput"
+                type="text"
+                placeholder="START를 입력하세요"
+                autocomplete="off"
+            />
+        </div>
+        <div class="guide-badge guide-can">
+            물뿌리개를 눌러 게이지를 채우세요
+        </div>
+        <div class="drag-card-area">
+            <div class="flip-card" id="dragFlipCard">
+                <div class="flip-card-face card-front"></div>
+                <div class="flip-card-face card-back"></div>
+            </div>
+        </div>
+        <div class="card-frame-container" id="cardFrameContainer">
+            <div class="card-frame-viewport">
+                <iframe id="cardFrame" src="about:blank"></iframe>
+                <button class="card-frame-close" id="cardFrameClose">X</button>
+            </div>
         </div>
 
         <div class="lake-container">
@@ -195,14 +651,20 @@
         <div class="valve-container">
             <div class="valve" id="lakeValve"></div>
         </div>
+        <div class="guide-badge guide-valve">밸브를 돌려보세요</div>
 
         <iframe id="mainFrame" src="about:blank"></iframe>
         <iframe id="snakeFrame" src="about:blank"></iframe>
+        <iframe id="fireworkFrame" src="about:blank"></iframe>
         <div class="close-button" id="closeButton">X</div>
         <div id="snakeContainer" class="snake-drag-target"></div>
+
+        <div class="guide-badge guide-card">카드를 뒤집어 보세요</div>
+        <div class="guide-badge guide-snake">뱀을 드래그해 멀리 끌어보세요</div>
         <button id="fireButton">
             <img src="img/button.png" style="width: 200px; height: auto" />
         </button>
+        <div class="guide-badge guide-fire">버튼을 눌러 폭죽을 쏘세요</div>
 
         <script>
             /* ===================== 인터랙션 통합 ===================== */
@@ -210,16 +672,26 @@
             const waterLevelDiv = document.getElementById("waterLevel");
             const mainFrame = document.getElementById("mainFrame");
             const snakeFrame = document.getElementById("snakeFrame");
+            const fireworkFrame = document.getElementById("fireworkFrame");
             const closeButton = document.getElementById("closeButton");
             const wateringCan = document.getElementById("wateringCan");
             const gaugeFill = document.getElementById("gaugeFill");
             const fireButton = document.getElementById("fireButton");
             const snakeContainer = document.getElementById("snakeContainer");
+            const dragFlipCard = document.getElementById("dragFlipCard");
+            const cardFrameContainer =
+                document.getElementById("cardFrameContainer");
+            const cardFrame = document.getElementById("cardFrame");
+            const cardFrameClose = document.getElementById("cardFrameClose");
+            const dropletPad = document.getElementById("dropletPad");
+            const dropletCountDisplay = document.getElementById("dropletCount");
+            const startInput = document.getElementById("startInput");
 
             let isDraggingValve = false,
                 currentValveRotation = 0;
             let isWaterContentLoaded = false,
-                isSnakeContentLoaded = false;
+                isSnakeContentLoaded = false,
+                isFireworkContentLoaded = false;
             let gaugeInterval = null,
                 gaugeLevel = 0;
             const CHARGE_RATE = 50,
@@ -233,10 +705,307 @@
                 TAIL_FOLLOW_SPEED = 0.5;
             const SNAKE_CONTAINER_SIZE = 800,
                 SNAKE_DISTANCE_THRESHOLD = 800;
+            const WIGGLE_FREQUENCY = 2.6,
+                WIGGLE_AMPLITUDE = 14,
+                WIGGLE_SPACING = 0.4;
+            const MAX_ACTIVE_ROCKETS = 6,
+                MAX_EXPLOSION_PARTICLES = 36;
             const segments = [],
                 INITIAL_SEGMENT_DATA = [];
             for (let i = 0; i < SEG_COUNT; i++)
                 INITIAL_SEGMENT_DATA.push({ x: i * TARGET_DIST, y: 0 });
+            let snakeTime = 0;
+            let lastSnakeTimestamp = performance.now();
+            let dropletCount = 0;
+            let activeRockets = 0;
+            const fireworkParticles = [];
+            let fireworkAnimationHandle = null,
+                fireworkLastFrameTime = 0;
+
+            /* ---------------- Droplet Pad ---------------- */
+            if (dropletPad) {
+                const lakeColors = [
+                    {
+                        border: "rgba(90, 150, 190, 0.5)",
+                        gradient1: "rgba(200, 230, 255, 0.9)",
+                        gradient2: "rgba(120, 190, 220, 0.65)",
+                        innerGradient1: "rgba(255, 255, 255, 0.55)",
+                        innerGradient2: "rgba(110, 170, 210, 0.4)",
+                        shadow: "rgba(0, 30, 60, 0.35)",
+                    },
+                    {
+                        border: "rgba(150, 100, 180, 0.5)",
+                        gradient1: "rgba(240, 200, 255, 0.9)",
+                        gradient2: "rgba(180, 140, 200, 0.65)",
+                        innerGradient1: "rgba(255, 255, 255, 0.55)",
+                        innerGradient2: "rgba(160, 120, 190, 0.4)",
+                        shadow: "rgba(40, 20, 60, 0.35)",
+                    },
+                    {
+                        border: "rgba(100, 180, 150, 0.5)",
+                        gradient1: "rgba(200, 255, 230, 0.9)",
+                        gradient2: "rgba(120, 220, 180, 0.65)",
+                        innerGradient1: "rgba(255, 255, 255, 0.55)",
+                        innerGradient2: "rgba(110, 210, 170, 0.4)",
+                        shadow: "rgba(0, 60, 30, 0.35)",
+                    },
+                    {
+                        border: "rgba(180, 150, 100, 0.5)",
+                        gradient1: "rgba(255, 240, 200, 0.9)",
+                        gradient2: "rgba(220, 180, 120, 0.65)",
+                        innerGradient1: "rgba(255, 255, 255, 0.55)",
+                        innerGradient2: "rgba(210, 170, 110, 0.4)",
+                        shadow: "rgba(60, 40, 0, 0.35)",
+                    },
+                    {
+                        border: "rgba(180, 100, 120, 0.5)",
+                        gradient1: "rgba(255, 200, 220, 0.9)",
+                        gradient2: "rgba(220, 120, 150, 0.65)",
+                        innerGradient1: "rgba(255, 255, 255, 0.55)",
+                        innerGradient2: "rgba(210, 110, 140, 0.4)",
+                        shadow: "rgba(60, 20, 30, 0.35)",
+                    },
+                ];
+                let currentColorIndex = 0;
+                const applyLakeColor = (index) => {
+                    const color = lakeColors[index];
+                    dropletPad.style.setProperty("--lake-border", color.border);
+                    dropletPad.style.setProperty(
+                        "--lake-gradient1",
+                        color.gradient1
+                    );
+                    dropletPad.style.setProperty(
+                        "--lake-gradient2",
+                        color.gradient2
+                    );
+                    dropletPad.style.setProperty(
+                        "--lake-inner1",
+                        color.innerGradient1
+                    );
+                    dropletPad.style.setProperty(
+                        "--lake-inner2",
+                        color.innerGradient2
+                    );
+                    dropletPad.style.setProperty("--lake-shadow", color.shadow);
+                };
+                const spawnDroplet = (x, y) => {
+                    const droplet = document.createElement("div");
+                    droplet.className = "droplet";
+                    droplet.style.left = x + "px";
+                    droplet.style.top = y + "px";
+                    dropletPad.appendChild(droplet);
+                    droplet.addEventListener("animationend", () =>
+                        droplet.remove()
+                    );
+                };
+                const spawnRipple = (x, y) => {
+                    const ring = document.createElement("div");
+                    ring.className = "droplet-ring";
+                    ring.style.left = x + "px";
+                    ring.style.top = y + "px";
+                    dropletPad.appendChild(ring);
+                    ring.addEventListener("animationend", () => ring.remove());
+                };
+                const spawnBubble = (x, y) => {
+                    const bubble = document.createElement("div");
+                    bubble.className = "droplet-bubble";
+                    const driftX = (Math.random() - 0.5) * 20;
+                    bubble.style.left = x + driftX + "px";
+                    bubble.style.top = y - 10 + "px";
+                    dropletPad.appendChild(bubble);
+                    bubble.addEventListener("animationend", () =>
+                        bubble.remove()
+                    );
+                };
+                const incrementDropletCount = () => {
+                    dropletCount += 1;
+                    if (dropletCountDisplay)
+                        dropletCountDisplay.textContent = dropletCount;
+                    // 6번 클릭하면 fluid.html 열기
+                    if (dropletCount === 6) {
+                        showFluidFrame();
+                    }
+                };
+                const handleDropletPointer = (e) => {
+                    const rect = dropletPad.getBoundingClientRect();
+                    const relX = e.clientX - rect.left;
+                    const relY = e.clientY - rect.top;
+                    spawnDroplet(relX, relY);
+                    spawnRipple(relX, relY);
+                    if (Math.random() > 0.4)
+                        spawnBubble(relX, relY + Math.random() * 20);
+                    incrementDropletCount();
+                    currentColorIndex =
+                        (currentColorIndex + 1) % lakeColors.length;
+                    applyLakeColor(currentColorIndex);
+                };
+                dropletPad.addEventListener(
+                    "pointerdown",
+                    handleDropletPointer
+                );
+            }
+            if (startInput) {
+                startInput.addEventListener("input", () => {
+                    const value = startInput.value.trim().toUpperCase();
+                    if (value === "START") {
+                        showRainFrame();
+                        startInput.value = "";
+                    }
+                });
+            }
+
+            /* ---------------- Firework Particle Pool ---------------- */
+            function ensureFireworkParticleLoop() {
+                if (fireworkAnimationHandle) return;
+                fireworkLastFrameTime = performance.now();
+                const step = (time) => {
+                    const delta = Math.min(
+                        (time - fireworkLastFrameTime) / 16.666,
+                        3
+                    );
+                    fireworkLastFrameTime = time;
+                    for (let i = fireworkParticles.length - 1; i >= 0; i--) {
+                        const particle = fireworkParticles[i];
+                        particle.x += particle.vx * delta;
+                        particle.y += particle.vy * delta;
+                        particle.vx *= 0.99;
+                        particle.vy = particle.vy * 0.99 + 0.05 * delta;
+                        particle.opacity -= 0.02 * delta;
+                        particle.el.style.left = particle.x + "px";
+                        particle.el.style.top = particle.y + "px";
+                        particle.el.style.opacity = particle.opacity;
+                        if (particle.opacity <= 0) {
+                            particle.el.remove();
+                            fireworkParticles.splice(i, 1);
+                        }
+                    }
+                    if (fireworkParticles.length)
+                        fireworkAnimationHandle = requestAnimationFrame(step);
+                    else fireworkAnimationHandle = null;
+                };
+                fireworkAnimationHandle = requestAnimationFrame(step);
+            }
+
+            function addExplosionParticle(config) {
+                if (fireworkParticles.length >= MAX_EXPLOSION_PARTICLES) return;
+                const { x, y, vx, vy, size, color } = config;
+                const particle = document.createElement("div");
+                particle.className = "firework-particle";
+                particle.style.width = size + "px";
+                particle.style.height = size + "px";
+                particle.style.background = `radial-gradient(circle, #ffffff, ${color})`;
+                particle.style.left = x + "px";
+                particle.style.top = y + "px";
+                document.body.appendChild(particle);
+                fireworkParticles.push({
+                    el: particle,
+                    x,
+                    y,
+                    vx,
+                    vy,
+                    opacity: 1,
+                });
+                ensureFireworkParticleLoop();
+            }
+
+            /* ---------------- Drag Flip Card ---------------- */
+            if (dragFlipCard) {
+                let cardPointerId = null;
+                let isCardDragging = false;
+                let isCardFlipped = false;
+                let cardStartX = 0;
+                let cardStartRotation = 0;
+                let cardCurrentRotation = 0;
+                const CARD_ROTATE_MAX = 180;
+                const CARD_DRAG_MULTIPLIER = 0.9;
+                const CARD_FRAME_SRC = "flip.html";
+
+                const updateCardRotation = (value) => {
+                    cardCurrentRotation = Math.max(
+                        0,
+                        Math.min(CARD_ROTATE_MAX, value)
+                    );
+                    dragFlipCard.style.transform = `rotateY(${cardCurrentRotation}deg)`;
+                };
+
+                const showCardFrame = () => {
+                    if (!cardFrameContainer || !cardFrame) return;
+                    cardFrameContainer.classList.add("is-visible");
+                    if (
+                        !cardFrame.src ||
+                        !cardFrame.src.includes(CARD_FRAME_SRC)
+                    )
+                        cardFrame.src = CARD_FRAME_SRC;
+                };
+
+                const hideCardFrame = () => {
+                    if (!cardFrameContainer || !cardFrame) return;
+                    cardFrameContainer.classList.remove("is-visible");
+                    cardFrame.src = "about:blank";
+                };
+
+                const handleCardPointerDown = (e) => {
+                    e.preventDefault();
+                    cardPointerId = e.pointerId;
+                    isCardDragging = true;
+                    cardStartX = e.clientX;
+                    cardStartRotation = isCardFlipped ? CARD_ROTATE_MAX : 0;
+                    dragFlipCard.classList.add("is-dragging");
+                    if (dragFlipCard.setPointerCapture) {
+                        try {
+                            dragFlipCard.setPointerCapture(cardPointerId);
+                        } catch (err) {}
+                    }
+                };
+
+                const handleCardPointerMove = (e) => {
+                    if (!isCardDragging || e.pointerId !== cardPointerId)
+                        return;
+                    const delta =
+                        (cardStartX - e.clientX) * CARD_DRAG_MULTIPLIER;
+                    updateCardRotation(cardStartRotation + delta);
+                };
+
+                const finishCardDrag = (e) => {
+                    if (!isCardDragging) return;
+                    if (e && e.pointerId !== cardPointerId) return;
+                    isCardDragging = false;
+                    dragFlipCard.classList.remove("is-dragging");
+                    const target =
+                        cardCurrentRotation >= CARD_ROTATE_MAX / 2
+                            ? CARD_ROTATE_MAX
+                            : 0;
+                    isCardFlipped = target === CARD_ROTATE_MAX;
+                    updateCardRotation(target);
+                    if (isCardFlipped) showCardFrame();
+                    else hideCardFrame();
+                    if (
+                        dragFlipCard.releasePointerCapture &&
+                        cardPointerId !== null
+                    ) {
+                        try {
+                            dragFlipCard.releasePointerCapture(cardPointerId);
+                        } catch (err) {}
+                    }
+                    cardPointerId = null;
+                };
+
+                dragFlipCard.addEventListener(
+                    "pointerdown",
+                    handleCardPointerDown
+                );
+                window.addEventListener("pointermove", handleCardPointerMove);
+                window.addEventListener("pointerup", finishCardDrag);
+                window.addEventListener("pointercancel", finishCardDrag);
+
+                if (cardFrameClose) {
+                    cardFrameClose.addEventListener("click", () => {
+                        hideCardFrame();
+                        isCardFlipped = false;
+                        updateCardRotation(0);
+                    });
+                }
+            }
 
             /* ---------------- Valve Logic ---------------- */
             function lerpAngle(a, b, t) {
@@ -410,7 +1179,12 @@
                 }
             }
             createSnake();
-            function updateSnake() {
+            function updateSnake(timestamp) {
+                if (typeof timestamp !== "number")
+                    timestamp = performance.now();
+                const delta = timestamp - lastSnakeTimestamp;
+                lastSnakeTimestamp = timestamp;
+                snakeTime += delta * 0.001;
                 const rect = snakeContainer.getBoundingClientRect();
                 const currentHeadSpeed = isDraggingSnake ? HEAD_SPEED : 0.05;
                 if (isDraggingSnake) {
@@ -476,12 +1250,22 @@
                             (ini.y - segments[i].y) * currentHeadSpeed;
                     }
                 }
-                segments.forEach(
-                    (s) =>
-                        (s.el.style.transform = `translate(${s.x}px,${
-                            s.y
-                        }px) rotate(${s.angle + 90}deg)`)
-                );
+                segments.forEach((s, idx) => {
+                    const phase =
+                        snakeTime * WIGGLE_FREQUENCY - idx * WIGGLE_SPACING;
+                    const attenuation = Math.max(0, 1 - idx / segments.length);
+                    const wiggleOffset =
+                        Math.sin(phase) * WIGGLE_AMPLITUDE * attenuation;
+                    const angleRad = (s.angle * Math.PI) / 180;
+                    const offsetAngle = angleRad + Math.PI / 2;
+                    const offsetX = Math.cos(offsetAngle) * wiggleOffset;
+                    const offsetY = Math.sin(offsetAngle) * wiggleOffset;
+                    const drawX = s.x + offsetX;
+                    const drawY = s.y + offsetY;
+                    s.el.style.transform = `translate(${drawX}px,${drawY}px) rotate(${
+                        s.angle + 90
+                    }deg)`;
+                });
                 requestAnimationFrame(updateSnake);
             }
             updateValve(0);
@@ -513,96 +1297,159 @@
                 }
                 closeButton.style.display = "block";
             }
-            function closeInteractiveContent() {
+            function showFireworkFrame() {
+                isFireworkContentLoaded = true;
                 isWaterContentLoaded = false;
                 isSnakeContentLoaded = false;
+                if (
+                    !fireworkFrame.src ||
+                    !fireworkFrame.src.includes("firework.html")
+                )
+                    fireworkFrame.src = "firework.html";
+                fireworkFrame.style.display = "block";
                 mainFrame.style.display = "none";
                 snakeFrame.style.display = "none";
+                closeButton.style.display = "block";
+            }
+            function closeInteractiveContent() {
+                const wasFluidOpen =
+                    mainFrame.src && mainFrame.src.includes("fluid.html");
+                isWaterContentLoaded = false;
+                isSnakeContentLoaded = false;
+                isFireworkContentLoaded = false;
+                mainFrame.style.display = "none";
+                snakeFrame.style.display = "none";
+                fireworkFrame.style.display = "none";
                 closeButton.style.display = "none";
                 mainFrame.src = "about:blank";
                 snakeFrame.src = "about:blank";
+                fireworkFrame.src = "about:blank";
+                if (startInput) startInput.value = "";
                 if (!isDraggingValve && currentValveRotation > 0)
                     updateValve(0);
+                if (wasFluidOpen) {
+                    dropletCount = 0;
+                    if (dropletCountDisplay)
+                        dropletCountDisplay.textContent = "0";
+                }
             }
             closeButton.onclick = closeInteractiveContent;
 
+            function showFluidFrame() {
+                isFireworkContentLoaded = false;
+                isWaterContentLoaded = false;
+                isSnakeContentLoaded = false;
+                fireworkFrame.src = "about:blank";
+                mainFrame.src = "fluid.html";
+                mainFrame.style.display = "block";
+                snakeFrame.style.display = "none";
+                fireworkFrame.style.display = "none";
+                closeButton.style.display = "block";
+            }
+            function showRainFrame() {
+                isFireworkContentLoaded = false;
+                isWaterContentLoaded = false;
+                isSnakeContentLoaded = false;
+                fireworkFrame.style.display = "none";
+                fireworkFrame.src = "about:blank";
+                snakeFrame.style.display = "none";
+                snakeFrame.src = "about:blank";
+                mainFrame.src = "rain.html";
+                mainFrame.style.display = "block";
+                closeButton.style.display = "block";
+            }
+            window.addEventListener("message", (event) => {
+                if (event.data === "closeFluid") closeInteractiveContent();
+            });
+
             /* ---------------- Firework ---------------- */
             fireButton.addEventListener("click", () =>
-                launchMultipleFireworks(5, 150)
+                launchSimultaneousFireworks(5)
             );
-            function launchMultipleFireworks(count, interval) {
-                let launched = 0;
-                const timer = setInterval(() => {
-                    if (launched >= count) {
-                        clearInterval(timer);
-                        return;
-                    }
-                    launchFireworkFromBottom();
-                    launched++;
-                }, interval);
+            function launchSimultaneousFireworks(count) {
+                for (let i = 0; i < count; i++) {
+                    if (!launchFireworkFromBottom()) break;
+                }
+            }
+            function createRocketSpark(x, y) {
+                const spark = document.createElement("div");
+                spark.className = "firework-spark";
+                spark.style.left = x + "px";
+                spark.style.top = y + "px";
+                document.body.appendChild(spark);
+                spark.addEventListener("animationend", () => spark.remove());
             }
             function launchFireworkFromBottom() {
-                const x =
+                if (activeRockets >= MAX_ACTIVE_ROCKETS) return false;
+                activeRockets++;
+                const xBase =
                     Math.random() * window.innerWidth * 0.8 +
                     window.innerWidth * 0.1;
                 const yStart = window.innerHeight - 10;
-                const yTarget = Math.random() * window.innerHeight * 0.5 + 100;
+                const yTarget = Math.random() * window.innerHeight * 0.5 + 120;
                 const rocket = document.createElement("div");
-                rocket.style.position = "absolute";
-                rocket.style.width = "10px";
-                rocket.style.height = "20px";
-                rocket.style.background = "red";
-                rocket.style.left = x + "px";
+                rocket.className = "firework-rocket";
+                rocket.style.left = xBase + "px";
                 rocket.style.top = yStart + "px";
-                rocket.style.zIndex = "1000";
-                rocket.style.borderRadius = "5px";
                 document.body.appendChild(rocket);
-                const speed = 7 + Math.random() * 3;
-                const interval = setInterval(() => {
-                    const curr = parseFloat(rocket.style.top);
-                    if (curr <= yTarget) {
-                        clearInterval(interval);
-                        document.body.removeChild(rocket);
-                        explodeFirework(x, yTarget);
-                    } else rocket.style.top = curr - speed + "px";
-                }, 16);
+                const duration = 1100 + Math.random() * 500;
+                const horizontalDrift = (Math.random() - 0.5) * 80;
+                let startTime = null;
+                let lastSparkTime = 0;
+                const animateRocket = (timestamp) => {
+                    if (!startTime) startTime = timestamp;
+                    const elapsed = timestamp - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const currentY = yStart - (yStart - yTarget) * eased;
+                    const currentX = xBase + horizontalDrift * progress;
+                    rocket.style.top = currentY + "px";
+                    rocket.style.left = currentX + "px";
+                    if (timestamp - lastSparkTime > 45) {
+                        createRocketSpark(currentX, currentY + 18);
+                        lastSparkTime = timestamp;
+                    }
+                    if (progress < 1) requestAnimationFrame(animateRocket);
+                    else {
+                        rocket.remove();
+                        activeRockets = Math.max(0, activeRockets - 1);
+                        explodeFirework(currentX, currentY);
+                    }
+                };
+                requestAnimationFrame(animateRocket);
+                return true;
+            }
+            function createFireworkGlow(x, y) {
+                const glow = document.createElement("div");
+                glow.className = "firework-glow";
+                glow.style.left = x + "px";
+                glow.style.top = y + "px";
+                document.body.appendChild(glow);
+                glow.addEventListener("animationend", () => glow.remove());
             }
             function explodeFirework(x, y) {
+                showFireworkFrame();
+                createFireworkGlow(x, y);
                 const colors = [
-                    "red",
-                    "yellow",
-                    "blue",
-                    "orange",
-                    "purple",
-                    "cyan",
-                    "lime",
+                    "#ff8a8a",
+                    "#ffd56d",
+                    "#8fd8ff",
+                    "#c1a2ff",
+                    "#91ffb2",
+                    "#fff2c1",
                 ];
-                for (let i = 0; i < 25 + Math.random() * 10; i++) {
-                    const p = document.createElement("div");
-                    p.className = "firework-particle";
-                    p.style.background =
+                const particleCount = 24 + Math.floor(Math.random() * 12);
+                for (let i = 0; i < particleCount; i++) {
+                    const color =
                         colors[Math.floor(Math.random() * colors.length)];
-                    p.style.left = x + "px";
-                    p.style.top = y + "px";
-                    document.body.appendChild(p);
-                    const angle = Math.random() * Math.PI * 2;
-                    const speed = Math.random() * 6 + 2;
-                    let vx = Math.cos(angle) * speed,
-                        vy = Math.sin(angle) * speed,
-                        alpha = 1;
-                    const anim = setInterval(() => {
-                        const px = parseFloat(p.style.left),
-                            py = parseFloat(p.style.top);
-                        vy += 0.15;
-                        p.style.left = px + vx + "px";
-                        p.style.top = py + vy + "px";
-                        alpha -= 0.03;
-                        p.style.opacity = alpha;
-                        if (alpha <= 0) {
-                            clearInterval(anim);
-                            p.remove();
-                        }
-                    }, 16);
+                    const angle =
+                        (Math.PI * 2 * i) / particleCount +
+                        (Math.random() - 0.5) * 0.3;
+                    const speed = 2.2 + Math.random() * 5.2;
+                    const vx = Math.cos(angle) * speed;
+                    const vy = Math.sin(angle) * speed;
+                    const size = 5 + Math.random() * 5;
+                    addExplosionParticle({ x, y, vx, vy, size, color });
                 }
             }
         </script>
